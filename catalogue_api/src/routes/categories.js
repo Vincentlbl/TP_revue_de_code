@@ -22,20 +22,22 @@ router.get('/', (_req, res) => {
  * Vérifie l'unicité du nom avant création
  */
 router.post('/', validateCategory, (req, res) => {
-  const categoryName = req.body.name.trim();
-  
-  // Vérification de l'unicité du nom
+  // On garde les caractères de contrôle comme \n, \r, \t
+  const categoryName = req.body.name;
+
+  // Vérification de l'unicité du nom (insensible à la casse)
   const existingCategories = getAll('categories');
-  const nameExists = existingCategories.some(cat => 
-    cat.name.toLowerCase() === categoryName.toLowerCase()
+  const nameExists = existingCategories.some(
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
   );
-  
+
   if (nameExists) {
-    return res.status(400).json({ 
-      error: 'A category with this name already exists' 
+    return res.status(400).json({
+      error: 'A category with this name already exists',
     });
   }
 
+  // Création de la nouvelle catégorie
   const created = create('categories', { name: categoryName });
   res.status(201).json(created);
 });
