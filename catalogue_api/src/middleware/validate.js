@@ -10,8 +10,8 @@ function validateProduct(req, res, next) {
   try {
     // Vérification de la présence du body
     if (!req.body || typeof req.body !== 'object') {
-      return res.status(400).json({ 
-        error: 'Request body is required and must be valid JSON' 
+      return res.status(400).json({
+        error: 'Request body is required and must be valid JSON'
       });
     }
 
@@ -19,62 +19,70 @@ function validateProduct(req, res, next) {
 
     // Validation du nom
     if (typeof name !== 'string' || name.trim() === '') {
-      return res.status(400).json({ 
-        error: 'Validation failed: name is required and must be a non-empty string' 
+      return res.status(400).json({
+        error: 'Validation failed: name is required and must be a non-empty string'
       });
     }
 
     // Validation du prix
     if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
-      return res.status(400).json({ 
-        error: 'Validation failed: price must be a finite number >= 0' 
+      return res.status(400).json({
+        error: 'Validation failed: price must be a finite number >= 0'
       });
     }
 
     // Validation du categoryId (optionnel)
     if (categoryId !== undefined && (!Number.isInteger(categoryId) || categoryId <= 0)) {
-      return res.status(400).json({ 
-        error: 'Validation failed: categoryId must be a positive integer' 
+      return res.status(400).json({
+        error: 'Validation failed: categoryId must be a positive integer'
       });
     }
 
     next();
   } catch (error) {
-    return res.status(500).json({ 
-      error: 'Internal server error during validation' 
+    return res.status(500).json({
+      error: 'Internal server error during validation'
     });
   }
 }
 
 /**
  * Middleware de validation pour les catégories
- * Vérifie que name est une chaîne non vide
+ * Vérifie que name est une chaîne non vide,
+ * tout en conservant les caractères de contrôle (\n, \r, \t)
  */
 function validateCategory(req, res, next) {
   try {
     // Vérification de la présence du body
     if (!req.body || typeof req.body !== 'object') {
-      return res.status(400).json({ 
-        error: 'Request body is required and must be valid JSON' 
+      return res.status(400).json({
+        error: 'Request body is required and must be valid JSON'
       });
     }
 
     const { name } = req.body;
 
-    // Validation du nom
-    if (typeof name !== 'string' || name.trim() === '') {
-      return res.status(400).json({ 
-        error: 'Validation failed: name is required and must be a non-empty string' 
+    // Validation du type
+    if (typeof name !== 'string') {
+      return res.status(400).json({
+        error: 'Validation failed: name must be a string'
       });
     }
 
+    // Vérifie que le nom n'est pas vide (après suppression uniquement des espaces)
+    if (name.replace(/^[ ]+|[ ]+$/g, '') === '') {
+      return res.status(400).json({
+        error: 'Validation failed: name cannot be empty'
+      });
+    }
+
+    // ✅ On ne modifie pas req.body.name ici (on garde les caractères spéciaux)
     next();
   } catch (error) {
-    return res.status(500).json({ 
-      error: 'Internal server error during validation' 
+    return res.status(500).json({
+      error: 'Internal server error during validation'
     });
   }
 }
 
 module.exports = { validateProduct, validateCategory };
-
