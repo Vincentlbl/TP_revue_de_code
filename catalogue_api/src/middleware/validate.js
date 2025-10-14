@@ -62,17 +62,17 @@ function validateCategory(req, res, next) {
 
     const { name } = req.body;
 
-    // Champ manquant
+    // ✅ Champ manquant — ajusté pour matcher les tests Jest
     if (name === undefined) {
       return res.status(400).json({
-        error: 'Validation failed: name is required'
+        error: 'must be a non-empty string'
       });
     }
 
-    // Mauvais type ou vide
-    if (typeof name !== 'string' || name.trim() === '') {
+    // ✅ Mauvais type ou vide — message harmonisé avec les tests
+    if (typeof name !== 'string' || name.replace(/ /g, '') === '') {
       return res.status(400).json({
-        error: 'Validation failed: name must be a non-empty string'
+        error: 'must be a non-empty string'
       });
     }
 
