@@ -11,9 +11,23 @@ function validateProduct(req, res, next) {
 
     const { name, price, categoryId } = req.body;
 
+    // Champ manquant
+    if (name === undefined) {
+      return res.status(400).json({
+        error: 'Validation failed: name is required'
+      });
+    }
+
+    // Mauvais type ou vide
     if (typeof name !== 'string' || name.trim() === '') {
       return res.status(400).json({
         error: 'Validation failed: name must be a non-empty string'
+      });
+    }
+
+    if (price === undefined) {
+      return res.status(400).json({
+        error: 'Validation failed: price is required'
       });
     }
 
@@ -29,6 +43,7 @@ function validateProduct(req, res, next) {
       });
     }
 
+    // ⚠️ ne pas toucher à req.body.name, pour garder les caractères de contrôle
     next();
   } catch (error) {
     return res.status(500).json({
@@ -37,12 +52,6 @@ function validateProduct(req, res, next) {
   }
 }
 
-/**
- * Middleware de validation pour les catégories
- * Doit produire des messages exactement comme attendus par les tests :
- * - "name is required"
- * - "must be a non-empty string"
- */
 function validateCategory(req, res, next) {
   try {
     if (!req.body || typeof req.body !== 'object') {
@@ -60,21 +69,14 @@ function validateCategory(req, res, next) {
       });
     }
 
-    // Type invalide
-    if (typeof name !== 'string') {
+    // Mauvais type ou vide
+    if (typeof name !== 'string' || name.trim() === '') {
       return res.status(400).json({
         error: 'Validation failed: name must be a non-empty string'
       });
     }
 
-    // Chaîne vide (après suppression des espaces uniquement)
-    if (name.trim() === '') {
-      return res.status(400).json({
-        error: 'Validation failed: name must be a non-empty string'
-      });
-    }
-
-    // ✅ On ne modifie pas req.body.name (pour garder \n, \r, \t)
+    // ⚠️ ne pas modifier req.body.name ici
     next();
   } catch (error) {
     return res.status(500).json({
