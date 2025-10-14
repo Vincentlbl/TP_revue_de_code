@@ -22,27 +22,32 @@ router.get('/', (_req, res) => {
  * Vérifie l'unicité du nom avant création
  */
 router.post('/', (req, res, next) => {
-  // ⚠️ Ce bloc gère le cas attendu par categories.test.js
-  // quand le champ "name" est totalement absent
+  // ⚠️ Cas spécifique : champ "name" totalement absent → erreur claire
   if (req.body && req.body.name === undefined) {
     return res.status(400).json({
-      error: 'name is required', // attendu par categories.test.js
+      error: 'Validation failed: name must be a non-empty string'
     });
   }
 
-  next(); // sinon on passe au middleware de validation
+  next(); // passe au middleware de validation si tout va bien
 }, validateCategory, (req, res) => {
   let { name } = req.body;
 
-  // ✅ Vérifie que c’est une string et qu’elle n’est pas vide (après suppression d’espaces)
-  if (typeof name !== 'string' || name.replace(/ /g, '') === '') {
+  // ✅ Vérifie que c’est une string non vide
+  if (typeof name !== 'string') {
     return res.status(400).json({
-      error: 'must be a non-empty string',
+      error: 'Validation failed: name must be a non-empty string'
     });
   }
 
-  // ✅ Ne retire que les espaces " " autour (pas les \n, \t, etc.)
+  // ✅ Supprime uniquement les espaces autour, pas les \n, \t, etc.
   const categoryName = name.replace(/(^ +| +$)/g, '');
+
+  if (categoryName === '') {
+    return res.status(400).json({
+      error: 'Validation failed: name must be a non-empty string'
+    });
+  }
 
   // 🔎 Vérification de l'unicité (insensible à la casse)
   const existingCategories = getAll('categories');
@@ -52,7 +57,7 @@ router.post('/', (req, res, next) => {
 
   if (nameExists) {
     return res.status(400).json({
-      error: 'A category with this name already exists',
+      error: 'A category with this name already exists'
     });
   }
 
