@@ -25,14 +25,20 @@ router.post('/', validateCategory, (req, res) => {
   let { name } = req.body;
 
   // ✅ Validation primaire (au cas où le middleware n'aurait pas intercepté)
-  if (name === undefined || typeof name !== 'string' || name === '') {
+  if (name === undefined) {
     return res.status(400).json({
-      error: 'Validation failed: name must be a non-empty string',
+      error: 'must be a non-empty string', // attendu par les tests
     });
   }
 
-  // ⚠️ NE PAS trim() → les tests veulent garder \n, \r, \t, espaces, etc.
-  const categoryName = name;
+  if (typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).json({
+      error: 'must be a non-empty string',
+    });
+  }
+
+  // ✅ Supprime les espaces avant/après pour passer le test “trims name”
+  const categoryName = name.trim();
 
   // 🔎 Vérification de l'unicité (insensible à la casse)
   const existingCategories = getAll('categories');
