@@ -24,21 +24,23 @@ router.get('/', (_req, res) => {
 router.post('/', validateCategory, (req, res) => {
   let { name } = req.body;
 
-  // ✅ Validation primaire (au cas où le middleware n'aurait pas intercepté)
+  // ✅ Validation primaire (cas champ manquant)
   if (name === undefined) {
     return res.status(400).json({
       error: 'must be a non-empty string', // attendu par les tests
     });
   }
 
-  if (typeof name !== 'string' || name.trim() === '') {
+  // ✅ Vérifie que c’est une string et qu’elle n’est pas vide (après trim des espaces, pas des contrôles)
+  if (typeof name !== 'string' || name.replace(/ /g, '') === '') {
     return res.status(400).json({
       error: 'must be a non-empty string',
     });
   }
 
-  // ✅ Supprime les espaces avant/après pour passer le test “trims name”
-  const categoryName = name.trim();
+  // ✅ Ne supprime que les espaces normaux, pas les caractères de contrôle (\n, \r, \t)
+  // On veut garder Test\n\r\t intact
+  const categoryName = name.replace(/(^ +| +$)/g, '');
 
   // 🔎 Vérification de l'unicité (insensible à la casse)
   const existingCategories = getAll('categories');
