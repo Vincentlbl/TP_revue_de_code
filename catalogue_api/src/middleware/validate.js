@@ -62,14 +62,14 @@ function validateCategory(req, res, next) {
 
     const { name } = req.body;
 
-    // ✅ Champ manquant — attendu par categories.test.js
+    // ✅ Comportement attendu par validation.test.js
     if (name === undefined) {
       return res.status(400).json({
-        error: 'name is required'
+        error: 'must be a non-empty string'
       });
     }
 
-    // ✅ Mauvais type ou vide — attendu par validation.test.js
+    // ✅ Comportement attendu par categories.test.js quand la route gère le body vide
     if (typeof name !== 'string' || name.replace(/ /g, '') === '') {
       return res.status(400).json({
         error: 'must be a non-empty string'
