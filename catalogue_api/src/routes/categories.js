@@ -1,0 +1,10 @@
+const express = require('express');
+const { create, getAll } = require('../data/db');
+const { validateCategory } = require('../middleware/validate');
+const router = express.Router();
+router.get('/', (_req, res) => res.json(getAll('categories')));
+router.post('/', validateCategory, (req, res) => {
+  const created = create('categories', { name: req.body.name.trim() });
+  res.status(201).json(created);
+});
+module.exports = router;

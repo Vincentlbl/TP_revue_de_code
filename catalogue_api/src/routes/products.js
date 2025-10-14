@@ -1,0 +1,15 @@
+const express = require('express');
+const { db, create, getAll } = require('../data/db');
+const { validateProduct } = require('../middleware/validate');
+const router = express.Router();
+router.get('/', (_req, res) => res.json(getAll('products')));
+router.post('/', validateProduct, (req, res) => {
+  const { name, price, categoryId } = req.body;
+  if (categoryId) {
+    const exists = db.categories.some(c => c.id === categoryId);
+    if (!exists) return res.status(400).json({ error: 'categoryId does not exist' });
+  }
+  const created = create('products', { name: name.trim(), price, categoryId });
+  res.status(201).json(created);
+});
+module.exports = router;

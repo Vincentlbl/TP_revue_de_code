@@ -1,0 +1,6 @@
+const db = { products: [], categories: [] };
+let idCounter = 1;
+const create = (collection, item) => { const withId = { id: idCounter++, ...item }; db[collection].push(withId); return withId; };
+const getAll = (collection) => db[collection];
+module.exports = { db, create, getAll };
+

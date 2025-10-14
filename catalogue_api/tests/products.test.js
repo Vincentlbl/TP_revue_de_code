@@ -1,0 +1,38 @@
+const request = require('supertest');
+const app = require('../src/app');
+const { db } = require('../src/data/db');
+
+beforeEach(() => { db.products.length = 0; db.categories.length = 0; });
+
+test('GET /products -> [] initially', async () => {
+  const res = await request(app).get('/products');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toEqual([]);
+});
+
+test('POST /products 400 when name missing', async () => {
+  const res = await request(app).post('/products').send({ price: 1.2 });
+  expect(res.statusCode).toBe(400);
+});
+
+test('POST /products 400 when price invalid', async () => {
+  const res = await request(app).post('/products').send({ name: 'Apple', price: 'x' });
+  expect(res.statusCode).toBe(400);
+});
+
+test('POST /products 400 when categoryId unknown', async () => {
+  const res = await request(app).post('/products').send({ name: 'Apple', price: 1.2, categoryId: 999 });
+  expect(res.statusCode).toBe(400);
+});
+
+test('POST /products 201 nominal', async () => {
+  const cat = await request(app).post('/categories').send({ name: 'Fruits' });
+  const res = await request(app).post('/products').send({ name: 'Apple', price: 1.2, categoryId: cat.body.id });
+  expect(res.statusCode).toBe(201);
+  expect(res.body.name).toBe('Apple');
+});
+
+test('POST /products 201 with price = 0', async () => {
+  const res = await request(app).post('/products').send({ name: 'Free Item', price: 0 });
+  expect(res.statusCode).toBe(201);
+});

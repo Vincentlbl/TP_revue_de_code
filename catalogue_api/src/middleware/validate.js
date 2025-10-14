@@ -1,0 +1,14 @@
+function validateProduct(req, res, next) {
+  const { name, price, categoryId } = req.body || {};
+  if (typeof name !== 'string' || name.trim() === '') return res.status(400).json({ error: 'name is required (non-empty string)' });
+  if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) return res.status(400).json({ error: 'price must be a finite number >= 0' });
+  if (categoryId !== undefined && (!Number.isInteger(categoryId) || categoryId <= 0)) return res.status(400).json({ error: 'categoryId must be a positive integer' });
+  next();
+}
+function validateCategory(req, res, next) {
+  const { name } = req.body || {};
+  if (typeof name !== 'string' || name.trim() === '') return res.status(400).json({ error: 'name is required (non-empty string)' });
+  next();
+}
+module.exports = { validateProduct, validateCategory };
+

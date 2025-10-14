@@ -1,0 +1,29 @@
+const request = require('supertest');
+const app = require('../src/app');
+const { db } = require('../src/data/db');
+
+beforeEach(() => { db.products.length = 0; db.categories.length = 0; });
+
+test('GET /categories -> [] initially', async () => {
+  const res = await request(app).get('/categories');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toEqual([]);
+});
+
+test('POST /categories 400 when name missing', async () => {
+  const res = await request(app).post('/categories').send({});
+  expect(res.statusCode).toBe(400);
+  expect(res.body.error).toMatch(/name is required/);
+});
+
+test('POST /categories 201 with valid name', async () => {
+  const res = await request(app).post('/categories').send({ name: 'Fruits' });
+  expect(res.statusCode).toBe(201);
+  expect(res.body).toHaveProperty('id');
+});
+
+test('POST /categories trims name', async () => {
+  const res = await request(app).post('/categories').send({ name: '  Fruits  ' });
+  expect(res.statusCode).toBe(201);
+  expect(res.body.name).toBe('Fruits'); 
+});

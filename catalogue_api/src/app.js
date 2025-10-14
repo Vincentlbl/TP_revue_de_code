@@ -1,0 +1,9 @@
+const express = require('express');
+const products = require('./routes/products');
+const categories = require('./routes/categories');
+const app = express();
+app.use(express.json());
+app.use('/products', products);
+app.use('/categories', categories);
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+module.exports = app;
