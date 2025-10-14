@@ -22,10 +22,19 @@ router.get('/', (_req, res) => {
  * Vérifie l'unicité du nom avant création
  */
 router.post('/', validateCategory, (req, res) => {
-  // On garde les caractères de contrôle comme \n, \r, \t
-  const categoryName = req.body.name;
+  let { name } = req.body;
 
-  // Vérification de l'unicité du nom (insensible à la casse)
+  // ✅ Validation primaire (au cas où le middleware n'aurait pas intercepté)
+  if (name === undefined || typeof name !== 'string' || name === '') {
+    return res.status(400).json({
+      error: 'Validation failed: name must be a non-empty string',
+    });
+  }
+
+  // ⚠️ NE PAS trim() → les tests veulent garder \n, \r, \t, espaces, etc.
+  const categoryName = name;
+
+  // 🔎 Vérification de l'unicité (insensible à la casse)
   const existingCategories = getAll('categories');
   const nameExists = existingCategories.some(
     (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
@@ -37,7 +46,7 @@ router.post('/', validateCategory, (req, res) => {
     });
   }
 
-  // Création de la nouvelle catégorie
+  // ✅ Création et retour
   const created = create('categories', { name: categoryName });
   res.status(201).json(created);
 });
