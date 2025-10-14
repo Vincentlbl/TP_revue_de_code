@@ -14,7 +14,7 @@ function validateProduct(req, res, next) {
     // Champ manquant
     if (name === undefined) {
       return res.status(400).json({
-        error: 'Validation failed: name is required'
+        error: 'Validation failed: name must be a non-empty string'
       });
     }
 
