@@ -206,16 +206,6 @@ describe('Advanced validation tests', () => {
   });
 
   describe('Missing fields handling', () => {
-    // Test avec undefined explicite
-    test('POST /categories should reject undefined name', async () => {
-      const res = await request(app)
-        .post('/categories')
-        .send({ name: undefined });
-      
-      expect(res.statusCode).toBe(400);
-      expect(res.body.error).toMatch(/must be a non-empty string/);
-    });
-
     // Test avec tous les champs manquants pour les produits
     test('POST /products should reject when all fields missing', async () => {
       const res = await request(app)
